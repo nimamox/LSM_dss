@@ -1,6 +1,5 @@
 import numpy as np
 import ANNarchy as AN
-from helpers import liquid_connector
 from pops import create_populations
 from projs import create_projections
 import random
