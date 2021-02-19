@@ -59,5 +59,7 @@ def create_projections(network, params, proj_params):
     projs['liq_readout'] = AN.Projection(network['liquid_pop'], network['readout_pop'], 'exc'
                                 ).connect_all_to_all(weights=AN.Uniform(0.1, 2.0), delays=1)
     
+    return projs
+    
     
         
