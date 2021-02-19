@@ -9,13 +9,20 @@ import random
 ####################################### PARAMETERS
 
 params = {
+    'delay': (1, 3),
+    
+    'W_inp': (4, 7), # Could be tuple
+    
+    'delay_inp': 2,
+    
     'liquid_geometry': (5, 5, 8),
     'exc_inh_ratio': .8,
     'inp_size': 1,
+    'liq_inp_size': 3,
     'readout_size': 5,
     'lambda_': 3,
-    'W_Scale': 14.2,
-    'W_inp_liq': 5.0,
+    'W_Scale': 10.2,
+
     'dt': .1,
     'seed': 1337
 }
@@ -38,8 +45,6 @@ print("#Nodes in RC: {},  Exc-Inh ratio: {},  #Exc: {},  #Inp: {}".format(networ
 ######################################## NETWORK PARAMETERS
 
 proj_params = {
-    'delay': 1,
-    
     'U_ee': 0.5, #STP params
     'U_ei': 0.05,
     'U_ie': 0.25,

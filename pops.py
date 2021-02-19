@@ -31,8 +31,8 @@ def create_populations(params):
     #Assign INP neurons
     indices = list(liquid_exc.ranks)
     np.random.shuffle(indices)
-    liquid_inp = liquid_pop[indices[:params['inp_size']]]
-    liquid_noninp = liquid_pop[indices[params['inp_size']:]]    
+    liquid_inp = liquid_pop[indices[:params['liq_inp_size']]]
+    liquid_noninp = liquid_pop[indices[params['liq_inp_size']:]]    
     
     
     return {'input_pop': input_pop, 'liquid_inp': liquid_inp, 'liquid_noninp': liquid_noninp,
