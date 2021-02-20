@@ -33,7 +33,7 @@ params = {
     'seed': 1337
 }
 
-output_filename = gen_filename(params) + '.out'
+output_filepath = 'results/' + gen_filename(params) + '.out'
 
 
 np.random.seed(params['seed'])
@@ -86,7 +86,7 @@ for i in range(20):
 
 
 
-with open(output_filename, 'wb') as fo:
+with open(output_filepath, 'wb') as fo:
     pickle.dump(liq_spikes, fo)
 
 ##print({kk: len(vv) for kk, vv in liquid_spikes.items() if len(vv)!=0})
