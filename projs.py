@@ -66,7 +66,7 @@ def create_projections(network, params, proj_params):
         print('Random weight from inp to liquid')
         wil = AN.Uniform(params['W_inp'][0], params['W_inp'][1])
     
-    if not hasattr('delay_inp', "__getitem__"):
+    if not hasattr(params['delay_inp'], "__getitem__"):
         print('Const delay from inp to liquid')
         dil = params['delay_inp']
     else:
