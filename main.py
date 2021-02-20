@@ -5,6 +5,9 @@ from pops import create_populations
 from projs import create_projections
 import random
 import pickle
+import sys
+
+
 
 def gen_filename(params):
     out = ('lambda[{lambda_}]_Wscale[{W_Scale}]_D[{delay}]_liqinpS[{liq_inp_size}]' +
@@ -16,22 +19,29 @@ def gen_filename(params):
 
 ####################################### PARAMETERS
 
-params = {
-    'delay': (1, 20),
-    'W_inp': (4, 8),
-    'delay_inp': (1, 20),
-
-    'liquid_geometry': (5, 5, 8),
-    'exc_inh_ratio': .8,
-    'inp_size': 1,
-    'liq_inp_size': 10,
-    'readout_size': 5,
-    'lambda_': 3.5,
-    'W_Scale': 7,
-
-    'dt': .1,
-    'seed': 1337
-}
+if len(sys.argv) > 1:
+    print('Reading params from file', end='')
+    params_file_path = sys.argv[1]
+    print(params_file_path)
+    with open(params_file_path, 'rb') as fi:
+        params = pickle.load(fi)
+else:
+    params = {
+        'delay': (1, 20),
+        'W_inp': (4, 8),
+        'delay_inp': (1, 20),
+    
+        'liquid_geometry': (5, 5, 8),
+        'exc_inh_ratio': .8,
+        'inp_size': 1,
+        'liq_inp_size': 10,
+        'readout_size': 5,
+        'lambda_': 3.5,
+        'W_Scale': 7,
+    
+        'dt': .1,
+        'seed': 1337
+    }
 
 output_filepath = 'results/' + gen_filename(params) + '.out'
 
