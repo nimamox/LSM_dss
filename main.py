@@ -86,13 +86,16 @@ current_time = int(AN.get_current_step() * params['dt'])
 network['input_pop'].spike_times = [current_time + 10]
 
 liq_spikes = []
+print('----'*5)
 for i in range(20):
-    AN.simulate(100, measure_time=False)
+    AN.simulate(50, measure_time=False)
     readout_spikes = m_readout.get('spike')
     liquid_spikes = m_liquid.get('spike')
     total_liquid_spikes = sum([len(_) for _ in list(liquid_spikes.values())])
     liq_spikes.append(total_liquid_spikes)
-    print(i+1, total_liquid_spikes)
+    if total_liquid_spikes:
+        print(i+1, total_liquid_spikes)
+print('----'*5)
 
 
 
