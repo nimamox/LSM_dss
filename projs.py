@@ -66,20 +66,31 @@ def create_projections(network, params, proj_params):
         print('Random weight from inp to liquid')
         wil = AN.Uniform(params['W_inp'][0], params['W_inp'][1])
     
+    dflag = True
     if not hasattr(params['delay_inp'], "__getitem__"):
         print('Const delay from inp to liquid')
         dil = params['delay_inp']
+        if dil < 0:
+            dflag = False
     else:
         print('Random delay from inp to liquid')
         dil = AN.Uniform(params['delay_inp'][0], params['delay_inp'][1])
     
-    inp_liq_proj = AN.Projection(network['input_pop'], network['liquid_inp'], 'exc')
-    if network['input_pop'].size == network['liquid_inp'].size:
-        print('one2one inp to liquid')
-        projs['inp_liq'] = inp_liq_proj.connect_one_to_one(weights=wil, delays=dil)
+    
+    if dflag:
+        inp_liq_proj = AN.Projection(network['input_pop'], network['liquid_inp'], 'exc')
+        if network['input_pop'].size == network['liquid_inp'].size:
+            print('one2one inp to liquid')
+            projs['inp_liq'] = inp_liq_proj.connect_one_to_one(weights=wil, delays=dil)
+        else:
+            print('all2all inp to liquid')
+            projs['inp_liq'] = inp_liq_proj.connect_all_to_all(weights=wil, delays=dil)
     else:
-        print('all2all inp to liquid')
-        projs['inp_liq'] = inp_liq_proj.connect_all_to_all(weights=wil, delays=dil)
+        dd = 1
+        for post in network['liquid_inp']:
+            print(dd)
+            AN.Projection(network['input_pop'], post, 'exc').connect_one_to_one(weights=wil, delays=dd)
+            dd = dd - dil
     
     # Liquid to readout connections
     projs['liq_readout'] = AN.Projection(network['liquid_pop'], network['readout_pop'], 'exc'

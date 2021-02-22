@@ -28,8 +28,8 @@ if len(sys.argv) > 1:
 else:
     params = {
         'delay': (1, 20),
-        'W_inp': (4, 8),
-        'delay_inp': (1, 20),
+        'W_inp': (6, 8),
+        'delay_inp': -20,
     
         'liquid_geometry': (5, 5, 8),
         'exc_inh_ratio': .8,

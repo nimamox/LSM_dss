@@ -21,6 +21,7 @@ for w_scale in np.linspace(7, 7, 1):
         'dt': .1,
         'seed': 1337
     }
+    
     print('*** W_scale:', w_scale)
     with open('params.conf', 'wb') as fo:
         pickle.dump(params, fo)
