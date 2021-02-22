@@ -19,17 +19,31 @@ def gen_filename(params):
 
 ####################################### PARAMETERS
 
+external_input = False
+
+
+with open('firing_times.isi', 'rb') as fi:
+    firing_times = pickle.load(fi)['firing_times']    
+    external_input = True
+
 if len(sys.argv) > 1:
     print('Reading params from file', end='')
     params_file_path = sys.argv[1]
     print(params_file_path)
     with open(params_file_path, 'rb') as fi:
         params = pickle.load(fi)
+    
+    if len(sys.argv) > 2:
+        with open('firing_times.isi', 'rb') as fi:
+            firing_times = pickle.load(fi)['firing_times']    
+            external_input = True
 else:
     params = {
         'delay': (1, 20),
         'W_inp': (6, 8),
         'delay_inp': -20,
+        
+        'W_out': (.5, 2.5),
     
         'liquid_geometry': (5, 5, 8),
         'exc_inh_ratio': .8,
@@ -82,8 +96,9 @@ m_readout = AN.Monitor(network['readout_pop'], 'spike')
 AN.compile(compiler_flags="-march=native -O0")
 
 ######################################## SIMULATION
-current_time = int(AN.get_current_step() * params['dt'])
-network['input_pop'].spike_times = [current_time + 10]
+if not external_input:
+    current_time = int(AN.get_current_step() * params['dt'])
+    network['input_pop'].spike_times = [current_time + 10]
 
 liq_spikes = []
 print('----'*5)

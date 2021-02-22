@@ -93,8 +93,15 @@ def create_projections(network, params, proj_params):
             dd = dd - dil
     
     # Liquid to readout connections
+    if not hasattr(params['W_out'], "__getitem__"):
+        print('Const weight from liquid to output')
+        wout = params['W_out']
+    else:
+        print('Random weight from liquid to output')
+        wout = AN.Uniform(params['W_out'][0], params['W_out'][1])
+        
     projs['liq_readout'] = AN.Projection(network['liquid_pop'], network['readout_pop'], 'exc'
-                                ).connect_all_to_all(weights=AN.Uniform(0.1, 2.0), delays=1)
+                                ).connect_all_to_all(weights=wout, delays=1)
     
     return projs
     
