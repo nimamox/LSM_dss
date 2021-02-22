@@ -21,20 +21,22 @@ def gen_filename(params):
 
 external_input = False
 
-
-with open('firing_times.isi', 'rb') as fi:
-    firing_times = pickle.load(fi)['firing_times']    
-    external_input = True
+#fname = 'firing_times.isi'
+#with open('firing_times.isi', 'rb') as fi:
+    #firing_times = pickle.load(fi)['firing_times']    
+    #external_input = True
 
 if len(sys.argv) > 1:
-    print('Reading params from file', end='')
+    print('Reading params from file', sys.argv[1], end='')
     params_file_path = sys.argv[1]
     print(params_file_path)
     with open(params_file_path, 'rb') as fi:
         params = pickle.load(fi)
     
     if len(sys.argv) > 2:
-        with open('firing_times.isi', 'rb') as fi:
+        fname = sys.argv[2]
+        with open(fname, 'rb') as fi:
+            print('Reading external firing times from', fname)
             firing_times = pickle.load(fi)['firing_times']    
             external_input = True
 else:
@@ -43,7 +45,7 @@ else:
         'W_inp': (6, 8),
         'delay_inp': -20,
         
-        'W_out': (.5, 2.5),
+        'W_out': (.5, 2),
     
         'liquid_geometry': (5, 5, 8),
         'exc_inh_ratio': .8,
@@ -51,10 +53,13 @@ else:
         'liq_inp_size': 10,
         'readout_size': 5,
         'lambda_': 3.5,
-        'W_Scale': 7,
+        'W_Scale': 0,
     
         'dt': .1,
-        'seed': 1337
+        'seed': 1337,
+        
+        'record_liq_spikes': False,
+        'sample_length': 100,
     }
 
 output_filepath = 'results/' + gen_filename(params) + '.out'
@@ -90,7 +95,8 @@ proj_params = {
 projs = create_projections(network, params, proj_params)
 
 ######################################## MONITORS
-m_liquid = AN.Monitor(network['liquid_pop'], 'spike')
+if params['record_liq_spikes']:
+    m_liquid = AN.Monitor(network['liquid_pop'], 'spike')
 m_readout = AN.Monitor(network['readout_pop'], 'spike')
 
 AN.compile(compiler_flags="-march=native -O0")
@@ -99,24 +105,43 @@ AN.compile(compiler_flags="-march=native -O0")
 if not external_input:
     current_time = int(AN.get_current_step() * params['dt'])
     network['input_pop'].spike_times = [current_time + 10]
+    liq_spikes = []
+    print('----'*5)
+    for i in range(20):
+        AN.simulate(50, measure_time=False)
+        readout_spikes = m_readout.get('spike')
+        liquid_spikes = m_liquid.get('spike')
+        total_liquid_spikes = sum([len(_) for _ in list(liquid_spikes.values())])
+        liq_spikes.append(total_liquid_spikes)
+        if total_liquid_spikes:
+            print(i+1, total_liquid_spikes)
+    print('----'*5)
+else:
+    lsm_spikes = []
+    for idx in range(firing_times.shape[0]):
+        current_time = int(AN.get_current_step() * params['dt'])
+        input_ftimes = []
+        for ft in firing_times[idx,0,:]:
+            input_ftimes.append(current_time + ft)
+        network['input_pop'].spike_times = input_ftimes
+        AN.simulate(params['sample_length'], measure_time=False)
+        readout_spikes = m_readout.get('spike')
+        tmp = []
+        for k in sorted(readout_spikes.keys()):
+            tmp.append([int((_*params['dt'])-current_time) for _ in readout_spikes[k]])
+        lsm_spikes.append(tmp)
+        print(idx, {kk: len(vv) for kk, vv in readout_spikes.items() if len(vv)!=0})
+        
+    with open(fname + '.result', 'wb') as fo:
+        pickle.dump({'lsm_spikes': lsm_spikes}, fo)
+print()
+        
 
-liq_spikes = []
-print('----'*5)
-for i in range(20):
-    AN.simulate(50, measure_time=False)
-    readout_spikes = m_readout.get('spike')
-    liquid_spikes = m_liquid.get('spike')
-    total_liquid_spikes = sum([len(_) for _ in list(liquid_spikes.values())])
-    liq_spikes.append(total_liquid_spikes)
-    if total_liquid_spikes:
-        print(i+1, total_liquid_spikes)
-print('----'*5)
 
 
+#with open(output_filepath, 'wb') as fo:
+    #pickle.dump(liq_spikes, fo)
 
-with open(output_filepath, 'wb') as fo:
-    pickle.dump(liq_spikes, fo)
-
-##print({kk: len(vv) for kk, vv in liquid_spikes.items() if len(vv)!=0})
+###print({kk: len(vv) for kk, vv in liquid_spikes.items() if len(vv)!=0})
 
 #print()
