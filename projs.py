@@ -87,9 +87,9 @@ def create_projections(network, params, proj_params):
             projs['inp_liq'] = inp_liq_proj.connect_all_to_all(weights=wil, delays=dil)
     else:
         dd = 1
-        for post in network['liquid_inp']:
-            print(dd)
-            AN.Projection(network['input_pop'], post, 'exc').connect_one_to_one(weights=wil, delays=dd)
+        for rnk in network['liquid_inp'].ranks:
+            #print(dd)
+            AN.Projection(network['input_pop'], network['liquid_pop'][rnk], 'exc').connect_one_to_one(weights=wil, delays=dd)
             dd = dd - dil
     
     # Liquid to readout connections
